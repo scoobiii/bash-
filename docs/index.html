@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rinha de Backend 2023 - Bash como Orquestrador</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --code-bg: #2d2d2d;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-color);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(44, 62, 80, 0.7) 100%);
+            z-index: 1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        
+        .header-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        section {
+            padding: 4rem 0;
+        }
+        
+        section h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: var(--secondary-color);
+        }
+        
+        .features {
+            background-color: white;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .architecture {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .architecture h2 {
+            color: white;
+        }
+        
+        .architecture-diagram {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--dark-color);
+        }
+        
+        .architecture-diagram pre {
+            text-align: left;
+            white-space: pre;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--code-bg);
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+        
+        .components {
+            margin-top: 2rem;
+        }
+        
+        .component-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .component-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .optimization {
+            background-color: white;
+        }
+        
+        .optimization-list {
+            list-style: none;
+        }
+        
+        .optimization-item {
+            background-color: var(--light-color);
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .optimization-icon {
+            color: var(--success-color);
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .team {
+            background-color: var(--light-color);
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .team-member {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .team-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 2rem auto 1rem;
+            border: 5px solid var(--light-color);
+        }
+        
+        .team-info {
+            padding: 1.5rem;
+        }
+        
+        .team-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-info p {
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+        
+        .cta {
+            background-color: var(--accent-color);
+            color: white;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            color: white;
+        }
+        
+        .cta h2::after {
+            background-color: white;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--light-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .header-content h1 {
+                font-size: 2rem;
+            }
+            
+            .header-content p {
+                font-size: 1rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <h1>Rinha de Backend 2023</h1>
+            <p>Uma implementação de alta performance utilizando Bash como orquestrador de componentes nativos em C</p>
+            <div class="btn-group">
+                <a href="https://github.com/zanfranceschi/rinha-de-backend-2023-q3" class="btn" target="_blank">Repositório Oficial</a>
+                <a href="#architecture" class="btn btn-primary">Ver Arquitetura</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="container">
+            <h2>Características Principais</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Alta Performance</h3>
+                    <p>Implementação otimizada para máxima eficiência, utilizando componentes nativos em C e técnicas avançadas de otimização.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h3>Bash como Orquestrador</h3>
+                    <p>Utiliza o poder do Bash para gerenciar e orquestrar componentes, aproveitando o que ele faz de melhor: gerenciamento de processos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Componentes em C</h3>
+                    <p>Workers e banco de dados implementados em C puro para máxima eficiência e controle sobre recursos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Banco In-Memory</h3>
+                    <p>Banco de dados em memória com persistência via snapshots, otimizado para operações de alta velocidade.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3>Balanceamento de Carga</h3>
+                    <p>Nginx configurado para distribuição eficiente de requisições entre múltiplos workers.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Auto-Healing</h3>
+                    <p>Recuperação automática de falhas, garantindo alta disponibilidade e resiliência do sistema.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="architecture" id="architecture">
+        <div class="container">
+            <h2>Arquitetura</h2>
+            <div class="architecture-diagram">
+                <h3>Diagrama de Componentes</h3>
+                <pre>
+                   ┌─────────────┐
+                   │    Nginx    │
+                   │ Balanceador │
+                   └──────┬──────┘
+                          │
+                 ┌────────┴────────┐
+                 │                 │
+          ┌──────▼─────┐    ┌──────▼─────┐
+          │  Worker C  │    │  Worker C  │
+          │ (Porta 8081)│    │ (Porta 8082)│
+          └──────┬─────┘    └──────┬─────┘
+                 │                 │
+                 └────────┬────────┘
+                          │
+                    ┌─────▼─────┐
+                    │ Banco de  │
+                    │ Dados C   │
+                    │ In-Memory │
+                    └───────────┘
+                </pre>
+            </div>
+            
+            <div class="components">
+                <div class="component-card">
+                    <h3>Bash Orchestrator</h3>
+                    <p>Responsável por iniciar, monitorar e gerenciar todos os componentes do sistema. Implementa recuperação automática de falhas e gerencia o ciclo de vida dos processos.</p>
+                </div>
+                <div class="component-card">
+                    <h3>Nginx Load Balancer</h3>
+                    <p>Distribui requisições entre múltiplos workers, configurado para máxima eficiência com número reduzido de workers e implementa keep-alive para reduzir overhead de conexão.</p>
+                </div>
+                <div class="component-card">
+                    <h3>C Workers</h3>
+                    <p>Servidores HTTP leves implementados em C puro que processam requisições REST e implementam a lógica de negócio, comunicando-se com o banco de dados via protocolo TCP personalizado.</p>
+                </div>
+                <div class="component-card">
+                    <h3>In-Memory Database</h3>
+                    <p>Banco de dados em memória implementado em C que utiliza estruturas de dados otimizadas para busca e inserção, implementa persistência via snapshots periódicos e suporta recuperação de dados após reinicialização.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="optimization">
+        <div class="container">
+            <h2>Estratégias de Otimização</h2>
+            <ul class="optimization-list">
+                <li class="optimization-item">
+                    <div class="optimization-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <h3>Redução de Overhead de Rede</h3>
+                        <p>Uso de <code>network_mode: host</code> para comunicação direta entre componentes, eliminando a camada de virtualização de rede do Docker. Implementação de protocolo de comunicação binário entre worker e banco para máxima eficiência.</p>
+                    </div>
+                </li>
+                <li class="optimization-item">
+                    <div class="optimization-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <div>
+                        <h3>Otimização de Memória</h3>
+                        <p>Alocação estática para evitar fragmentação, estruturas de dados compactas e reuso de buffers para evitar realocações frequentes, reduzindo a pressão sobre o garbage collector.</p>
+                    </div>
+                </li>
+                <li class="optimization-item">
+                    <div class="optimization-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div>
+                        <h3>Otimização de CPU</h3>
+                        <p>Algoritmos de busca otimizados utilizando hash tables, processamento em lote (batch) para inserções e compilação com flags de otimização (-O3) para máximo desempenho.</p>
+                    </div>
+                </li>
+                <li class="optimization-item">
+                    <div class="optimization-icon">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div>
+                        <h3>Persistência Eficiente</h3>
+                        <p>Snapshots incrementais em background e journaling para operações críticas, garantindo durabilidade sem comprometer a performance do sistema.</p>
+                    </div>
+                </li>
+                <li class="optimization-item">
+                    <div class="optimization-icon">
+                        <i class="fas fa-balance-scale-right"></i>
+                    </div>
+                    <div>
+                        <h3>Balanceamento de Carga</h3>
+                        <p>Configuração otimizada do Nginx e número de workers ajustado para máxima eficiência, considerando as limitações de recursos da Rinha (1,5 CPU e 3GB RAM).</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="team">
+        <div class="container">
+            <h2>Equipe</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="https://via.placeholder.com/150" alt="Zeh Sobrinho" class="team-photo">
+                    <div class="team-info">
+                        <h3>Zeh Sobrinho</h3>
+                        <p>Product Owner</p>
+                        <p>Responsável pela visão do produto e definição de requisitos.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-github"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <img src="https://via.placeholder.com/150" alt="Manus" class="team-photo">
+                    <div class="team-info">
+                        <h3>Manus</h3>
+                        <p>Full Stack AGI DevOp</p>
+                        <p>Responsável pela arquitetura, implementação e otimização do sistema.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-github"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Pronto para Experimentar?</h2>
+            <p>Clone o repositório e execute o projeto em seu ambiente local para ver o poder do Bash como orquestrador em ação!</p>
+            <div class="btn-group" style="margin-top: 2rem;">
+                <a href="#" class="btn">Baixar Código</a>
+                <a href="#" class="btn btn-primary">Ver Documentação</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">Início</a>
+                <a href="#architecture">Arquitetura</a>
+                <a href="https://github.com/zanfranceschi/rinha-de-backend-2023-q3" target="_blank">Rinha de Backend</a>
+                <a href="#">Documentação</a>
+                <a href="#">Contato</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Rinha de Backend - Bash como Orquestrador. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
